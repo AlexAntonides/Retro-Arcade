@@ -4,21 +4,35 @@ package objects
 	import flash.display.Sprite
 	import flash.events.KeyboardEvent;
 	import flash.events.Event;
+	import background.TileClass;
+	import pickups.LargePoint;
+	import pickups.SmallPoint;
 	/**
 	 * ...
 	 * @author Alex Antonides
 	 */
 	public class Player extends MovieClip
 	{
+		public static const DESTROY_SMALL_POINT : String = "destroy_small_point";
+		public static const DESTROY_LARGE_POINT : String = "destroy_large_point";
+		
 		private var leftAnim:MovieClip;
 		private var rightAnim:MovieClip;
 		private var upAnim:MovieClip;
 		private var downAnim:MovieClip;
 		private var idleAnim:MovieClip;
 		
-		private var directionX:int = 0;
-		private var directionY:int = 0;
-		private var speed:Number = 3;
+		private var speed:Number = 4;
+		
+		private var currentTielX:int;
+		private var currentTielY:int;
+		private var previousDirectionX:int;
+		private var previousDirectionY:int;
+		public var NextDirectionX: int;
+		public var NextDirectionY: int;
+		
+		private var smallPoints:Array = [];
+		private var bigPoints:Array = [];
 		
 		public function Player() 
 		{
@@ -35,6 +49,9 @@ package objects
 			upAnim = new upCharacter();
 			downAnim = new downCharacter();
 			idleAnim = new idleCharacter();
+				
+			smallPoints = TileClass.smallPoints; 
+			bigPoints = TileClass.bigPoints;
 			
 			addChild(leftAnim);
 			addChild(rightAnim);
@@ -44,14 +61,59 @@ package objects
 			
 			hideAllAnimations(rightAnim, upAnim, downAnim, idleAnim);
 			
+			currentTielX = this.x / TileClass.tileWidth;
+			currentTielY = this.y / TileClass.tileHeight;
+			
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-			stage.addEventListener(Event.ENTER_FRAME, update);
+			addEventListener(Event.ENTER_FRAME, update);
+		}
+		public function CheckTile(x:int, y:int):void
+		{
+			if(this.x / 16 % 1 == 0 && this.y / 16 % 1 == 0)
+			{
+				currentTielX = this.x / 16;
+				currentTielY = this.y / 16;
+			}
+			if (TileClass.tiles[currentTielY + y][currentTielX + x] != 0 && this.x / 16 % 1 == 0 && this.y / 16 % 1 == 0 && TileClass.tiles[currentTielY + y][currentTielX + x] != 2)
+			{
+				this.x += speed * x;
+				this.y += speed * y;
+				
+				previousDirectionX = x;
+				previousDirectionY = y;
+			}
+			else if (TileClass.tiles[currentTielY + previousDirectionY][ currentTielX + previousDirectionX] != 0)
+			{
+				this.x += speed * previousDirectionX;
+				this.y += speed * previousDirectionY;
+			}
 		}
 		
-		private function update(e:Event):void 
+		private function update(e:Event):void
 		{
-			this.x += speed * directionX; 
-			this.y += speed * directionY; 
+			trace(smallPoints.length);
+			var lengthSP:int = smallPoints.length,
+				lengthBP:int = bigPoints.length;
+			
+			for each (var smallP:SmallPoint in smallPoints)
+			{
+				if (this.hitTestObject(smallP)) 
+				{
+					smallPoints.splice(smallPoints.indexOf(smallP), 1);
+					smallP.parent.removeChild(smallP);
+				}
+			}
+			
+			for each (var bigP:LargePoint in bigPoints)
+			{
+				if (this.hitTestObject(bigP)) 
+				{
+					bigPoints.splice(bigPoints.indexOf(bigP), 1);
+					bigP.parent.removeChild(bigP);
+				}
+			}
+			
+			CheckTile(NextDirectionX, NextDirectionY);
 		}
 		
 		private function onKeyDown(e:KeyboardEvent):void 
@@ -59,26 +121,27 @@ package objects
 			if (e.keyCode == 37) // Left
 			{
 				playAnimation(0);
-				directionX = -1;
-				directionY = 0;
+				NextDirectionX = -1;
+				NextDirectionY = 0;
 			}
+			
 			if (e.keyCode == 39) // Right
 			{
 				playAnimation(1);
-				directionX = 1;
-				directionY = 0;
+				NextDirectionX = 1;
+				NextDirectionY = 0;
 			}
 			if (e.keyCode == 38) // Up
 			{
 				playAnimation(2);
-				directionX = 0;
-				directionY = -1;
+				NextDirectionX = 0;
+				NextDirectionY = -1;
 			}
 			if (e.keyCode == 40) // Down
 			{
 				playAnimation(3);
-				directionX = 0;
-				directionY = 1;
+				NextDirectionX = 0;
+				NextDirectionY = 1;
 			}
 		}
 		

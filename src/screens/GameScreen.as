@@ -1,6 +1,7 @@
 package screens 
 {
 	import background.GameBackground;
+	import background.TileClass;
 	import flash.events.Event;
 	import objects.Player;
 	/**
@@ -11,8 +12,10 @@ package screens
 	{
 		static public const END_GAME:String = "endGame";
 		
-		private var pPlayer:Player;
-		private var pBackground:GameBackground;
+		private var tiles:TileClass = new TileClass();
+		public static var player:Player = new Player();
+		private var pBackground:Background = new Background();
+		
 		public function GameScreen() 
 		{
 			if (stage) init();
@@ -24,17 +27,15 @@ package screens
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
-			pPlayer = new Player();
-			pBackground = new GameBackground();
+			pBackground.x = 10;
+			player.x = 14 * TileClass.tileWidth; //15
 			
-			pPlayer.x = 500;
-			pBackground.x = 400;
+			pBackground.y = 60;
+			player.y = 26 * TileClass.tileHeight; //20
 			
-			pPlayer.y = 500;
-			pBackground.y = 270;
-			
-			addChild(pPlayer);
 			addChild(pBackground);
+			addChild(tiles);
+			addChild(player);
 		}
 		
 	}
