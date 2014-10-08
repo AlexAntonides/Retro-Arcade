@@ -6,6 +6,7 @@ package objects
 	import flash.events.Event;
 	import background.TileClass;
 	import pickups.LargePoint;
+	import screens.GameScreen;
 	import pickups.SmallPoint;
 	/**
 	 * ...
@@ -67,6 +68,7 @@ package objects
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			addEventListener(Event.ENTER_FRAME, update);
 		}
+		
 		public function CheckTile(x:int, y:int):void
 		{
 			if(this.x / 16 % 1 == 0 && this.y / 16 % 1 == 0)
@@ -87,11 +89,20 @@ package objects
 				this.x += speed * previousDirectionX;
 				this.y += speed * previousDirectionY;
 			}
+			if (TileClass.tiles[currentTielY + y][currentTielX + x] == 5)
+			{
+				this.x = 27 * TileClass.tileWidth; //28
+				this.y = 17 * TileClass.tileHeight; //17
+			}
+			else if (TileClass.tiles[currentTielY + y][currentTielX + x] == 6)
+			{
+				this.x = 1 * TileClass.tileWidth; //0
+				this.y = 17 * TileClass.tileHeight; //17
+			}
 		}
 		
 		private function update(e:Event):void
 		{
-			trace(smallPoints.length);
 			var lengthSP:int = smallPoints.length,
 				lengthBP:int = bigPoints.length;
 			
@@ -101,6 +112,7 @@ package objects
 				{
 					smallPoints.splice(smallPoints.indexOf(smallP), 1);
 					smallP.parent.removeChild(smallP);
+					GameScreen.addScore(smallP.score);
 				}
 			}
 			
@@ -110,6 +122,7 @@ package objects
 				{
 					bigPoints.splice(bigPoints.indexOf(bigP), 1);
 					bigP.parent.removeChild(bigP);
+					GameScreen.addScore(bigP.score);
 				}
 			}
 			
