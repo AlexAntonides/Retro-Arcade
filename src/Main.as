@@ -7,9 +7,7 @@ package
 	 * ...
 	 * @author Alex Antonides
 	 */
-	
 	 [SWF(backgroundColor = "#000000")]
-	 
 	public class Main extends Sprite 
 	{
 		private var _root:Root;

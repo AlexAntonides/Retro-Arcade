@@ -11,9 +11,6 @@ package
 	 */
 	public class Root extends Sprite
 	{
-		private var screen_Game:GameScreen;
-		private var screen_Menu:MenuScreen;
-		private var _screen:Screen;
 		public function Root() 
 		{
 			if (stage) init();
@@ -23,40 +20,39 @@ package
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			placeScreen("inGame");
+			
+			placeScreen("start");
+			
+			stage.addEventListener(Screen.ADD_GAME, placeGame);
+			stage.addEventListener(Screen.ADD_MENU, placeMenu);
 		}
 		
 		private function placeScreen(type:String):void
 		{
+			var _screen:Screen = new Screen();
+			
 			switch(type)
 			{
 				case "start":
-					_screen = new MenuScreen();
-					_screen.addEventListener(MenuScreen.START_GAME, startGame);
+					_screen.addScreen(Screen.MENUSCREEN, this.stage);
 					break;
 				case "inGame":
-					_screen = new GameScreen();
-					_screen.addEventListener(GameScreen.END_GAME, endGame);
+					_screen.addScreen(Screen.GAMESCREEN, this.stage);
 					break;
+				default: 
+					throw new Error("Invalid type specified at Root class.");
+					return null;
 			}
-			addChild(_screen);
 		}
 		
-		private function startGame(e:Event):void
+		private function placeMenu(e:Event):void 
 		{
-			destroy();
-			placeScreen("inGame");
-		}
-		
-		private function endGame(e:Event):void
-		{
-			destroy();
 			placeScreen("start");
 		}
 		
-		private function destroy():void
+		private function placeGame(e:Event):void 
 		{
-			removeChild(_screen);
+			placeScreen("inGame");
 		}
 	}
 
